@@ -1,2 +1,2 @@
-CONNECT_DB = "postgresql://metabase800:c[jkf800@analytics.shkola800.ru:5432/school800"
+CONNECT_DB = "postgresql://postgres:admin1@localhost:5432/auto-service"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
