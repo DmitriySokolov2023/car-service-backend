@@ -5,6 +5,7 @@ from app.api.employees.employees import employees_bp
 from app.api.role.role import role_bp
 from app.api.services.services import services_bp
 from app.api.parts.parts import parts_bp
+from app.api.clients.clients import clients_bp
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -13,4 +14,5 @@ def create_app():
     app.register_blueprint(role_bp, url_prefix="/api/role")
     app.register_blueprint(services_bp, url_prefix="/api/services")
     app.register_blueprint(parts_bp, url_prefix="/api/parts")
+    app.register_blueprint(clients_bp, url_prefix="/api/clients")
     return app
