@@ -29,6 +29,19 @@ def get_clients():
             return jsonify({"items": rows}), 200
     except Exception:
         return jsonify({"error": "db error"}), 500
+    
+
+@clients_bp.route("/get/<int:client_id>", methods=["GET"])
+def get_client_by_id(client_id: int):
+    try:
+        with psycopg2.connect(CONNECT_DB) as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""SELECT * FROM public.clients WHERE id = %s LIMIT 1;""", (client_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Клиент не найден"}), 404
+            return jsonify({"item": row}), 200
+    except Exception:
+        return jsonify({"error": "db error"}), 500
 
 # POST: создать клиента (comment опционален)
 @clients_bp.route("/create", methods=["POST"])

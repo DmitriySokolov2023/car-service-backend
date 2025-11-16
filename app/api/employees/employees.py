@@ -16,8 +16,41 @@ def get_employees():
     except Exception as e:
         return jsonify({"error": e}), 500
     
-
-    
+@employees_bp.route("/get/custom", methods=["GET"])
+def get_employees_custom():
+    try:
+        with psycopg2.connect(CONNECT_DB) as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""SELECT e.id, e.full_name 
+                            FROM public.employees as e
+                            JOIN public.roles as r
+                            ON r.id = e.role_id
+                            where e.active = True and r.name ilike %s
+                            ORDER BY full_name ASC;""",
+                            ('%менеджер%',))
+            rows = cur.fetchall() or []
+            result = [{"value": r["id"], "label": r["full_name"]} for r in rows]
+            return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+@employees_bp.route("/get/custom/<int:employee_id>", methods=["GET"])
+def get_employee_custom_by_id(employee_id: int):
+    """
+    Вернёт один объект в формате { "value": id, "label": full_name }.
+    """
+    try:
+        with psycopg2.connect(CONNECT_DB) as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT id, full_name
+                FROM public.employees
+                WHERE id = %s
+                LIMIT 1;
+            """, (employee_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Сотрудник не найден"}), 404
+            return jsonify({"value": row["id"], "label": row["full_name"]}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 @employees_bp.route("/create", methods=["POST"])
 def create_employee():
     data = request.get_json(silent=True) or {}

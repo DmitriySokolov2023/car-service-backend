@@ -45,6 +45,18 @@ def get_cars_by_client(client_id: int):
             return jsonify({"items": rows, "count": len(rows)}), 200
     except Exception:
         return jsonify({"error": "db error"}), 500
+    
+@cars_bp.route("/get/<int:car_id>", methods=["GET"])
+def get_car_by_id(car_id: int):
+    try:
+        with psycopg2.connect(CONNECT_DB) as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""SELECT * FROM public.cars WHERE id = %s LIMIT 1;""", (car_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({"error": "Авто не найдено"}), 404
+            return jsonify({"item": row}), 200
+    except Exception:
+        return jsonify({"error": "db error"}), 500
 # POST: создать авто (все поля обязательны)
 @cars_bp.route("/create", methods=["POST"])
 def create_car():
